@@ -102,6 +102,21 @@ class CategorizationRule(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+class MortgageAlert(Base):
+    __tablename__ = "mortgage_alerts"
+
+    id             = Column(String, primary_key=True, default=new_id)
+    current_rate   = Column(Float, nullable=False)
+    found_rate     = Column(Float, nullable=False)
+    lender         = Column(String, nullable=False)
+    source_url     = Column(String)
+    monthly_savings = Column(Float, default=0.0)
+    annual_savings  = Column(Float, default=0.0)
+    recommendation = Column(Text)
+    search_date    = Column(String)
+    created_at     = Column(DateTime, default=datetime.utcnow)
+
+
 class MonthlySummary(Base):
     __tablename__ = "monthly_summaries"
 

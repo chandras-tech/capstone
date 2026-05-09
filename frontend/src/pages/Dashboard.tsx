@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import AppNavbar from '../components/layout/AppNavbar';
 import SummaryCards from '../components/dashboard/SummaryCards';
 import IncomeExpenseChart from '../components/dashboard/IncomeExpenseChart';
@@ -69,6 +69,9 @@ export default function Dashboard() {
   const { data: summary,   isLoading: ls } = useSummary(month, year, fromMonth, fromYear);
   const { data: categories, isLoading: lc } = useCategories(month, year);
   const { data: recurring  } = useRecurring(12);
+  const { data: mortgageAlerts = [] } = useQuery('mortgage-alerts',
+    () => api.get('/mortgage/rate-alerts').then(r => r.data),
+    { staleTime: 0, refetchOnMount: true });
   const { data: watchlist = [] } = useWatchlist();
   const [watchlistOpen, setWatchlistOpen] = useState(true);
   const flagTx = useFlagTransaction();
@@ -168,6 +171,54 @@ export default function Dashboard() {
               <div className="grid grid-cols-2 gap-6">
                 <RecurringBillsChart data={recurring} />
                 <AdhocChart data={recurring} />
+              </div>
+            )}
+
+            {/* Mortgage Rate Alert from OpenClaw Agent */}
+            {mortgageAlerts.length > 0 && (
+              <div className="bg-gradient-to-r from-green-900/20 to-emerald-900/10
+                              border border-green-500/30 rounded-2xl p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-2xl">🏠</span>
+                  <h3 className="text-sm font-bold text-green-400">
+                    Mortgage Rate Alert — Found by AI Agent
+                  </h3>
+                  <span className="text-xs bg-green-500/20 text-green-400
+                                   px-2 py-0.5 rounded-full ml-auto">
+                    Daily Monitor Active
+                  </span>
+                </div>
+                {mortgageAlerts.slice(0, 1).map((alert: any) => (
+                  <div key={alert.id}>
+                    <p className="text-white font-semibold mb-2">
+                      🏦 {alert.lender} offering {alert.found_rate}% (15-yr conventional)
+                    </p>
+                    <p className="text-gray-300 text-sm leading-relaxed mb-3">
+                      {alert.recommendation}
+                    </p>
+                    <div className="grid grid-cols-3 gap-3 mb-3">
+                      <div className="bg-black/20 rounded-xl p-3 text-center">
+                        <p className="text-xs text-gray-400">Current Rate</p>
+                        <p className="text-lg font-bold text-red-400">{alert.current_rate}%</p>
+                      </div>
+                      <div className="bg-black/20 rounded-xl p-3 text-center">
+                        <p className="text-xs text-gray-400">Found Rate</p>
+                        <p className="text-lg font-bold text-green-400">{alert.found_rate}%</p>
+                      </div>
+                      <div className="bg-black/20 rounded-xl p-3 text-center">
+                        <p className="text-xs text-gray-400">Monthly Savings</p>
+                        <p className="text-lg font-bold text-green-400">${alert.monthly_savings?.toLocaleString()}</p>
+                      </div>
+                    </div>
+                    <a href={alert.source_url} target="_blank" rel="noreferrer"
+                      className="text-xs text-green-400 underline hover:text-green-300">
+                      View source →
+                    </a>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Found by OpenClaw agent · {new Date(alert.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))}
               </div>
             )}
 

@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base
 import models  # noqa: F401 — ensures models are registered before create_all
-from routers import auth, accounts, statements, transactions, dashboard, recommendations, rules
+from routers import auth, accounts, statements, transactions, dashboard, recommendations, rules, mortgage
 
 Base.metadata.create_all(bind=engine)
 
@@ -28,6 +28,7 @@ app.include_router(transactions.router,    prefix="/transactions",    tags=["tra
 app.include_router(dashboard.router,       prefix="/dashboard",       tags=["dashboard"])
 app.include_router(recommendations.router, prefix="/recommendations", tags=["recommendations"])
 app.include_router(rules.router,           prefix="/rules",           tags=["rules"])
+app.include_router(mortgage.router,        prefix="/mortgage",        tags=["mortgage"])
 
 
 @app.get("/health")
