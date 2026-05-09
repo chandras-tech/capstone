@@ -1,0 +1,16 @@
+.env
+.env.local
+.env.production
+backend/.env
+frontend/.env
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+node_modules/
+build/
+dist/
+.DS_Store
+*.egg-info/
+.pytest_cache/
